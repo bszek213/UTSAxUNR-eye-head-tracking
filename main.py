@@ -7,8 +7,9 @@ def main():
     print('========')
     print(eye_data.columns.tolist())
     print(eye_data['Relative_Timestamp'])
+    plot_vor(head_data,eye_data)
+    exit()
     plot_head_data(head_data,eye_data)
-    
 
 if __name__ == "__main__":
     main()
