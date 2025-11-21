@@ -37,6 +37,23 @@ def plot_head_data(head_data, eye_data):
     plt.legend()
     plt.show()
 
+def plot_head_data(head1, head2):
+    plt.figure(figsize=(10, 6))
+    ts1 = pd.to_datetime(head1['UTC_Timestamp'])
+    ts2 = pd.to_datetime(head2['UTC_Timestamp'])
+
+    horz_head_vel1 = velocity(head1, 'Relative_Timestamp', 'Head_Rotation_X')
+    horz_head_vel2 = velocity(head2, 'Relative_Timestamp', 'Head_Rotation_X')
+    plt.plot(np.rad2deg(horz_head_vel1), label='Head Angular Velocity X - before')
+    plt.plot(np.rad2deg(horz_head_vel2), label='Head Angular Velocity X - after')
+
+    plt.xlabel('Time')
+    plt.ylabel('Angular Displacement (deg)')
+    plt.title('Head Angular Velocity Over Time')
+    plt.legend()
+    plt.show()
+    exit()
+
 def az_el_from_xyz(df, xcol, ycol, zcol, forward_minus_z=False, degrees=True, unwrap=True):
     x = df[xcol].to_numpy(dtype=float)
     y = df[ycol].to_numpy(dtype=float)
@@ -79,6 +96,32 @@ def calculate_vor(eye_df, head_df):
 def _apply_sav_gol(df,col):
     df[col] = savgol_filter(df[col],window_length=31,polyorder=2)
     return df
+
+def plot_smooth(eye_data1, eye_data2):
+    az1, el1 = az_el_from_xyz(
+        eye_data1,
+        'Right_Eye_Gaze_Position_X',
+        'Right_Eye_Gaze_Position_Y',
+        'Right_Eye_Gaze_Position_Z',
+        forward_minus_z=False,   # set True if your system uses -Z forward
+        degrees=True,
+        unwrap=True
+    )
+    az2, el2 = az_el_from_xyz(
+        eye_data2,
+        'Right_Eye_Gaze_Position_X',
+        'Right_Eye_Gaze_Position_Y',
+        'Right_Eye_Gaze_Position_Z',
+        forward_minus_z=False,   # set True if your system uses -Z forward
+        degrees=True,
+        unwrap=True
+    )
+    eye_data1['az_deg'], eye_data1['el_deg'] = az1, el1
+    eye_data2['az_deg'], eye_data2['el_deg'] = az2, el2
+    plt.plot(az1, el1, label='before')
+    plt.plot(az2, el2, label='after')
+    # plt.plot(eye_data['Relative_Timestamp'], el / 2, label='Eye elevation (deg)')
+    plt.legend(); plt.xlabel('Time'); plt.ylabel('Degrees'); plt.show()
 
 def plot_vor(head_data, eye_data):
     ""
