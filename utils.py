@@ -3,6 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import savgol_filter
 
+plt.rcParams["font.weight"] = "bold" # bold fonts​
+plt.rcParams["axes.labelweight"] = "bold" # bold axis labels​
+plt.rcParams["font.size"] = 18 # larger overall font size​
+plt.rcParams["lines.linewidth"] = 3 # thicker lines by default​
+
 def load_data(file_path):
     """Load data from a CSV file."""
     return pd.read_csv(file_path)
@@ -45,14 +50,19 @@ def plot_head_data(head1, head2):
     horz_head_vel1 = velocity(head1, 'Relative_Timestamp', 'Head_Rotation_X')
     horz_head_vel2 = velocity(head2, 'Relative_Timestamp', 'Head_Rotation_X')
     plt.plot(np.rad2deg(horz_head_vel1), label='Head Angular Velocity X - before')
-    plt.plot(np.rad2deg(horz_head_vel2), label='Head Angular Velocity X - after')
+    plt.plot()
 
-    plt.xlabel('Time')
-    plt.ylabel('Angular Displacement (deg)')
-    plt.title('Head Angular Velocity Over Time')
+    fig, ax = plt.subplots(figsize=(8,6))
+    ax.plot(np.rad2deg(horz_head_vel1), label='Head Angular Velocity X - before')
+    ax.plot(np.rad2deg(horz_head_vel2), label='Head Angular Velocity X - after', alpha=0.75)
+    for spine in ax.spines.values():
+        spine.set_linewidth(2.5) # thicker spines​
+        ax.tick_params(width=2.5, length=6) # thicker, longer ticks​
+    plt.xlabel('Time (s)', fontweight='bold')
+    plt.ylabel('Angular Velocity (deg/s)',fontweight='bold')
     plt.legend()
-    plt.show()
-    exit()
+    plt.savefig('head_ang_vel_b_and_a_rod.png',dpi=500)
+    plt.close()
 
 def az_el_from_xyz(df, xcol, ycol, zcol, forward_minus_z=False, degrees=True, unwrap=True):
     x = df[xcol].to_numpy(dtype=float)
@@ -118,10 +128,23 @@ def plot_smooth(eye_data1, eye_data2):
     )
     eye_data1['az_deg'], eye_data1['el_deg'] = az1, el1
     eye_data2['az_deg'], eye_data2['el_deg'] = az2, el2
-    plt.plot(az1, el1, label='before')
-    plt.plot(az2, el2, label='after')
+    
+    # plt.plot(np.rad2deg(az1), np.rad2deg(el1), label='before')
+    # plt.plot(np.rad2deg(az2), np.rad2deg(el2), label='after')
+    fig, ax = plt.subplots()
+    ax.plot(np.rad2deg(az1), np.rad2deg(el1), label='before')
+    ax.plot(np.rad2deg(az2), np.rad2deg(el2), label='after', alpha=0.75)
+    ax.set_xlabel('Azimuth (degrees)', fontweight='bold')
+    ax.set_ylabel('Elevation (degrees)', fontweight='bold')
+    ax.legend()
     # plt.plot(eye_data['Relative_Timestamp'], el / 2, label='Eye elevation (deg)')
-    plt.legend(); plt.xlabel('Time'); plt.ylabel('Degrees'); plt.show()
+    for spine in ax.spines.values():
+        spine.set_linewidth(2.5) # thicker spines​
+        ax.tick_params(width=2.5, length=6) # thicker, longer ticks​
+
+    plt.tight_layout()
+    plt.savefig('eye_pos_b_and_a_rod.png', dpi=500)
+    plt.close()
 
 def plot_vor(head_data, eye_data):
     ""
